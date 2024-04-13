@@ -130,80 +130,35 @@ $$ x(0)=x_0,y(0)=y_0 $$
 ## код
 Julia
 ```
-using Plots
-using DifferentialEquations
+using DifferentialEquations, Plots
 
-x0 =7
-y0 = 20
-
-a = 0.14
-b = 0.041
-c = 0.31
-h = 0.042
-
-function ode_fn(du, u, t)
-    x, y = u
-    du[1] = -a * u[1] + c * [u1] * u[2]
-    du[2] = b * u[2] - d * [u1] * u[2]
+# Определение функции модели хищник-жертва
+function pred_prey!(du, u, p, t)
+    du[1] = -0.13*u[1] + 0.04*u[1]*u[2] # изменение популяции жертв dx/dt
+    du[2] = 0.31*u[2] - 0.042*u[1]*u[2] # изменение популяции хищников dy/dt
 end
 
-u0 = [x0; y0]
-t=collect(LinRange(0,0.1,400))
-tspan = (0.0, 400.0)
-prob = ODEProblem(ode_fn, u0, tspan)
+# Начальные условия
+u0 = [7.0, 20.0] # Начальные популяции: x0 = 7, y0 = 20
+
+# Временной интервал
+tspan = (0.0, 30.0) # Интервал интегрирования от 0 до 30
+
+# Решение дифференциального уравнения
+prob = ODEProblem(pred_prey!, u0, tspan)
 sol = solve(prob)
 
-X = [u[1] for u in sol.u]
-Y = [u[2] for u in sol.u]
-T = [t for t in sol.t]
+# Построение графика популяций
+plot(sol, xlabel="Время", ylabel="Популяция",
+     title="Модель Хищник-Жертва")
 
-plt = 
-    plot(
-        layout=(1,2),
-        dpi=200,
-        legend=false)
-    plot!(
-        plt[1],
-        T,
-        X,
-        title="решение уравнения x",
-        color=:blue)
-    plot!(
-        plt[2],
-        X,
-        Y,
-        title="x vs y",
-        color=:blue)
+# Построение фазового портрета
+plot(sol[1,:], sol[2,:], xlabel="Численность жертв",
+     ylabel="Численность хищников", title="Фазовый Портрет")
+savefig("predator_prey_model.png")
 
-        savefig("lab5-3.png")
 ```
-![Название рисунка](image/lab5-3.png){#fig:001 width=70%}
-
-Openmodelica
-```
-model lab5
-constant Real a=0.13;
-constant Real b=0.041;
-constant Real c=0.31;
-constant Real d=0.042;
-
-Real x;
-Real y;
-
-initial equation
-x=7;
-y=20;
-
-equation
-der(x)=a*x-b*x*y;
-der(y)=-c*y+d*x*y;
-
-end lab5;
-```
-
-@fig:001).
-
-![Название рисунка](image/lab5modeli2.png){#fig:001 width=70%}
+![Название рисунка](image/predator_prey_model.png)
 
 Найдем стационарное состояние системы: $$ x_0=0,31/0,042=7,38;  y_0=0,13/0,041=3,17 $$
 
