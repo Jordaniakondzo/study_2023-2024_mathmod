@@ -2,7 +2,7 @@
 ## Front matter
 title: "Отчёт по лабораторной работе 3"
 subtitle: "Простейший вариант 54"
-author: "Еленга Невлора Люглеш"
+author: "Акондзо Жордани Лади Гаэл"
 
 ## Generic otions
 lang: ru-RU
