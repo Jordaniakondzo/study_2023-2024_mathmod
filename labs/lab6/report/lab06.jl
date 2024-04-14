@@ -1,52 +1,43 @@
 using Plots
 using DifferentialEquations
 
-a = 0.01
-b = 0.02
-N = 8439
-y0 = 86
-z0 = 25
-x0 = N - y0 - z0
+# Параметры модели
+a = 0.01 # коэффициент заразности
+b = 0.02 # коэффициент выздоровления
+N = 8439 # общая численность населения
+I0 = 86  # начальное число инфицированных, больше чем I*
+R0 = 25  # начальное число выздоровевших
+S0 = N - I0 - R0 # начальное число восприимчивых к инфекции
 
+# Функция дифференциальных уравнений
 function ode_fn(du, u, p, t)
-    x, y, z = u
-    du[1] = -b*u[1]
-    du[2] = a*u[1] - b*u[2]
-    du[3] = b*u[1]
+    s, i, r = u
+    du[1] = -a * s * i        # изменение числа восприимчивых
+    du[2] = a * s * i - b * i # изменение числа инфицированных
+    du[3] = b * i            # изменение числа выздоровевших
 end
 
-u0 = [x0, y0, z0]
-tspan = (0.0, 200.0)
-prob = ODEProblem(ode_fn, u0, tspan)
-sol = solve(prob, dtmax=0.01)
+# Начальные условия и интервал времени
+u0 = [S0, I0, R0]
+tspan = (0.0, 1000.0)
 
-X = [u[1] for u in sol.u]
-Y = [u[2] for u in sol.u]
-Z = [u[3] for u in sol.u]
-T = [t for t in sol.t]
+# Решение модели
+prob1 = ODEProblem(ode_fn, u0, tspan)
+sol1 = solve(prob1, dtmax=0.01)
 
-plt = 
-    plot(
-        layout=(1,2),
-        dpi=300,
-        legend=false)
-    plot!(
-        plt[1],
-        T,
-        X,
-        title="решение уравнения S",
-        color=:blue)
-    plot!(
-        plt[2],
-        T,
-        Y,
-        label="решение уравнения I",
-        color=:yellow)
-    plot!(
-        plt[2],
-        T,
-        Z,
-        label="решение уравнения R",
-        color=:red)
+# Извлечение данных для графиков
+S = [u[1] for u in sol1.u]
+I = [u[2] for u in sol1.u]
+R = [u[3] for u in sol1.u]
+T = [t for t in sol1.t]
 
-        savefig("lab6-1.png")
+# Построение графиков
+plt = plot(T, S, label="Восприимчивые", color=:blue)
+plot!(T, I, label="Инфицированные", color=:yellow)
+plot!(T, R, label="Выздоровевшие", color=:red, legend=:right)
+
+# Настройка и отображение графика
+title!("Динамика эпидемии при I(0)>I*")
+xlabel!("Время")
+ylabel!("Численность населения")
+savefig("lab6-2.png")
