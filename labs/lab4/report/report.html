@@ -1,0 +1,252 @@
+<h1 id="i.цель-работы">I.Цель работы</h1>
+<p>Постройте фазовый портрет гармонического осциллятора и решение
+уравнения гармонического осциллятора</p>
+<h1 id="ii.задание">II.Задание</h1>
+<p>Постройте фазовый портрет гармонического осциллятора и решение
+уравнения гармонического осциллятора для следующих случаев.</p>
+<ol type="1">
+<li><p>Колебания гармонического осциллятора без затуханий и без действий
+внешней силы <span class="math inline">$\ddot{x}+5x=0$</span></p></li>
+<li><p>Колебания гармонического осциллятора c затуханием и без действий
+внешней силы <span
+class="math inline">$\ddot{x}+2\dot{x}+5x=0$</span></p></li>
+<li><p>Колебания гармонического осциллятора c затуханием и под действием
+внешней силы <span
+class="math inline">$\ddot{x}+4\dot{x}+x=5sin(14t)$</span></p></li>
+</ol>
+<p>На интервале <span class="math inline"><em>t</em> = [0; 30]</span>
+(шаг 0.05) с начальными условиями <span
+class="math inline"><em>x</em><sub>0</sub> = 0, <em>y</em><sub>0</sub> = 1</span></p>
+<h1 id="iii.-выполнение-задания">III. Выполнение задания</h1>
+<h2
+id="колебания-гармонического-осциллятора-без-затуханий-и-без-действий-внешней-силы">1.
+Колебания гармонического осциллятора без затуханий и без действий
+внешней силы</h2>
+<p><strong>Уравнение:</strong> <code>$\ddot{x} + 5x = 0$</code></p>
+<p>Это стандартное уравнение гармонического осциллятора, где <span
+class="math inline"><em>x</em></span> представляет смещение от
+равновесия, а <span class="math inline">$\ddot{x}$</span> - ускорение.
+Коэффициент 5 соответствует квадрату собственной частоты осциллятора
+(ω²).</p>
+<p><strong>Решение:</strong> - Уравнение является линейным
+дифференциальным уравнением второго порядка с постоянными
+коэффициентами. - Характеристическое уравнение имеет вид <span
+class="math inline"><em>λ</em><sup>2</sup> + 5 = 0</span>, корни
+которого <span class="math inline">$\lambda = \pm i\sqrt{5}$</span>. -
+Общее решение уравнения будет комбинацией функций <span
+class="math inline">$\sin(\sqrt{5}t)$</span> и <span
+class="math inline">$\cos(\sqrt{5}t)$</span>.</p>
+<h3 id="реализация-в-julia">Реализация в Julia</h3>
+<p>Для решения данного уравнения в Julia, мы сначала преобразуем его в
+систему двух уравнений первого порядка, введя новую переменную <span
+class="math inline"><em>v</em> = <em>ẋ</em></span>, что позволит нам
+использовать стандартные методы для систем ОДУ.</p>
+<ul>
+<li>Построить фазовый портрет гармонического осциллятора с помощью Julia
+(рис. <span class="citation"
+data-cites="fig:001">[-@fig:001]</span>).</li>
+</ul>
+<p>Введём следующий код:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DifferentialEquations</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Определение системы ОДУ для первого случая</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Колебания гармонического осциллятора без затухания и без действия внешней силы</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">harmonic_oscillator_1</span>(du, u, p, t)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    x, v <span class="op">=</span> u  <span class="co"># u[1] это положение x, u[2] это скорость v</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">1</span>] <span class="op">=</span> v             <span class="co"># dx/dt = v</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">2</span>] <span class="op">=</span> <span class="op">-</span><span class="fl">5</span><span class="op">*</span>x          <span class="co"># dv/dt = -5x (без затухания, без внешней силы)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Начальные условия и интервал времени</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">1.0</span>]          <span class="co"># x0 = 0, v0 = 1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>tspan <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">30.0</span>)      <span class="co"># От t = 0 до t = 30</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> <span class="fl">0.05</span>                <span class="co"># Шаг времени для сохранения результатов</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Создание проблемы ОДУ</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>prob1 <span class="op">=</span> <span class="fu">ODEProblem</span>(harmonic_oscillator_1, u0, tspan)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Решение проблемы ОДУ</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>sol1 <span class="op">=</span> <span class="fu">solve</span>(prob1, saveat<span class="op">=</span>dt)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Построение фазового портрета</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sol1, idxs<span class="op">=</span>(<span class="fl">1</span>,<span class="fl">2</span>), xlabel<span class="op">=</span><span class="st">&quot;Положение (x)&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Скорость (v)&quot;</span>, title<span class="op">=</span><span class="st">&quot;Фазовый портрет гармонического осциллятора 1&quot;</span>)</span></code></pre></div>
+<p>И мы получим результат:</p>
+<figure id="fig:001">
+<img
+src="https://drive.google.com/uc?id=1HcXmvNS_8jPlAYqpaprOYzt11UT2Fo5X"
+style="width:70.0%"
+alt="Фазовый портрет гармонического осциллятора 1" />
+<figcaption aria-hidden="true">Фазовый портрет гармонического
+осциллятора 1</figcaption>
+</figure>
+<h2
+id="колебания-гармонического-осциллятора-c-затуханием-и-без-действий-внешней-силы">2.
+Колебания гармонического осциллятора c затуханием и без действий внешней
+силы</h2>
+<p><strong>Уравнение:</strong>
+<code>$\ddot{x} + 2\dot{x} + 5x = 0$</code></p>
+<p>Здесь добавляется член затухания <span
+class="math inline">2<em>ẋ</em></span>, который пропорционален и
+противоположен скорости, моделирующий силу трения или сопротивления.</p>
+<p><strong>Решение:</strong> - Введем затухание <span
+class="math inline"><em>b</em> = 2</span> и собственную частоту <span
+class="math inline"><em>ω</em><sub>0</sub><sup>2</sup> = 5</span>. -
+Характеристическое уравнение <span
+class="math inline"><em>λ</em><sup>2</sup> + 2<em>λ</em> + 5 = 0</span>
+имеет комплексные корни. - Решение будет включать экспоненциально
+затухающие термины <span
+class="math inline"><em>e</em><sup>−<em>t</em></sup></span>,
+модифицированные синусоидальными и косинусоидальными функциями.</p>
+<h3 id="реализация-в-julia-1">Реализация в Julia :</h3>
+<ul>
+<li><p>Мы сначала преобразуем это уравнение второго порядка в систему
+первого порядка, введя <span
+class="math inline"><em>v</em> = <em>ẋ</em></span>.</p></li>
+<li><p>Это дает нам два уравнения: <span
+class="math inline"><em>ẋ</em> = <em>v</em></span> и <span
+class="math inline"><em>v̇</em> = −2<em>v</em> − 5<em>x</em></span>.</p></li>
+<li><p>Мы используем функцию <code>ODEProblem</code> для определения
+задачи решения ОДУ с начальными условиями <span
+class="math inline"><em>x</em><sub>0</sub> = 0, <em>v</em><sub>0</sub> = 1</span>.</p></li>
+<li><p>Затем мы решаем эту задачу с помощью функции <code>solve</code>,
+указывая интервал времени и шаг сохранения результатов.</p></li>
+<li><p>Результаты решения используются для построения фазового портрета,
+показывающего зависимость скорости от положения.</p></li>
+<li><p>Построить фазовый портрет гармонического осциллятора с помощью
+Julia (рис. <span class="citation"
+data-cites="fig:002">[-@fig:002]</span>).</p></li>
+</ul>
+<p>Введём следующий код:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode julia"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DifferentialEquations</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Определение системы ОДУ для второго случая</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Колебания гармонического осциллятора с затуханием и без действия внешней силы</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">harmonic_oscillator_2</span>(du, u, p, t)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    x, v <span class="op">=</span> u  <span class="co"># u[1] это положение x, u[2] это скорость v</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">1</span>] <span class="op">=</span> v             <span class="co"># dx/dt = v, первое уравнение системы</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">2</span>] <span class="op">=</span> <span class="op">-</span><span class="fl">2</span><span class="op">*</span>v <span class="op">-</span> <span class="fl">5</span><span class="op">*</span>x    <span class="co"># dv/dt = -2v - 5x, второе уравнение системы с затуханием</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Начальные условия и интервал времени</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">1.0</span>]          <span class="co"># x0 = 0, v0 = 1, начальное положение и начальная скорость</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>tspan <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">30.0</span>)      <span class="co"># От t = 0 до t = 30, временной интервал для решения ОДУ</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> <span class="fl">0.05</span>                <span class="co"># Шаг времени для сохранения результатов</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Создание проблемы ОДУ для решения</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>prob2 <span class="op">=</span> <span class="fu">ODEProblem</span>(harmonic_oscillator_2, u0, tspan)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Решение проблемы ОДУ</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>sol2 <span class="op">=</span> <span class="fu">solve</span>(prob2, saveat<span class="op">=</span>dt)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Построение фазового портрета</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sol2, idxs<span class="op">=</span>(<span class="fl">1</span>,<span class="fl">2</span>), xlabel<span class="op">=</span><span class="st">&quot;Положение (x)&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Скорость (v)&quot;</span>, title<span class="op">=</span><span class="st">&quot;Фазовый портрет гармонического осциллятора 2&quot;</span>)</span></code></pre></div>
+<p>И мы получим результат:</p>
+<figure id="fig:002">
+<img
+src="https://drive.google.com/uc?id=1lDJncGWR8ODxKtc-iBlrTzW6JaomF3qx"
+style="width:70.0%"
+alt="Фазовый портрет гармонического осциллятора 2" />
+<figcaption aria-hidden="true">Фазовый портрет гармонического
+осциллятора 2</figcaption>
+</figure>
+<h2
+id="колебания-гармонического-осциллятора-c-затуханием-и-под-действием-внешней-силы">3.
+Колебания гармонического осциллятора c затуханием и под действием
+внешней силы</h2>
+<p><strong>Уравнение:</strong>
+<code>$\ddot{x} + 4\dot{x} + x = \sin(14t)$</code></p>
+<p>Теперь система испытывает действие внешней силы, моделируемой
+функцией <span class="math inline">sin (14<em>t</em>)</span>, которая
+заставляет систему колебаться с внешней частотой.</p>
+<p><strong>Решение:</strong> - Дифференциальное уравнение включает
+неоднородный член <span class="math inline">sin (14<em>t</em>)</span>,
+указывающий на наличие внешнего возмущения. - Ответ будет состоять из
+двух частей: одна соответствует свободным (натуральным) колебаниям
+системы, а другая - вынужденным колебаниям из-за внешней силы. -
+Вынужденная часть ответа будет иметь ту же частоту, что и внешняя
+сила.</p>
+<h3 id="реализация-в-julia-2">Реализация в Julia :</h3>
+<ul>
+<li><p>Аналогично предыдущим случаям, мы преобразуем уравнение в систему
+первого порядка.</p></li>
+<li><p>Вводим функцию в правой части уравнения для описания внешней
+силы: <span
+class="math inline"><em>f</em>(<em>t</em>) = sin (14<em>t</em>)</span>.</p></li>
+<li><p>Определяем систему уравнений: <span
+class="math inline"><em>ẋ</em> = <em>v</em></span> и <span
+class="math inline"><em>v̇</em> = −4<em>v</em> − <em>x</em> + <em>f</em>(<em>t</em>)</span>.</p></li>
+<li><p>Решаем систему уравнений, используя <code>ODEProblem</code> и
+<code>solve</code> с теми же начальными условиями и временным
+интервалом.</p></li>
+<li><p>Фазовый портрет строится по решению, иллюстрируя динамику системы
+под воздействием внешней силы.</p></li>
+<li><p>Построить фазовый портрет гармонического осциллятора с помощью
+Julia (рис. <span class="citation"
+data-cites="fig:003">[-@fig:003]</span>).</p></li>
+</ul>
+<p>Введём следующий код:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode julia"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DifferentialEquations</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Определение системы ОДУ для третьего случая</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Колебания гармонического осциллятора с затуханием и под действием внешней силы</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">harmonic_oscillator_3</span>(du, u, p, t)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    x, v <span class="op">=</span> u  <span class="co"># u[1] это положение x, u[2] это скорость v</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">1</span>] <span class="op">=</span> v                          <span class="co"># dx/dt = v, первое уравнение системы</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    du[<span class="fl">2</span>] <span class="op">=</span> <span class="op">-</span><span class="fl">4</span><span class="op">*</span>v <span class="op">-</span> x <span class="op">+</span> <span class="fu">sin</span>(<span class="fl">14</span><span class="op">*</span>t)       <span class="co"># dv/dt = -4v - x + sin(14t), второе уравнение системы с затуханием и внешней силой</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Начальные условия и интервал времени</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">1.0</span>]         <span class="co"># x0 = 0, v0 = 1, начальное положение и начальная скорость</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>tspan <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">30.0</span>)     <span class="co"># От t = 0 до t = 30, временной интервал для решения ОДУ</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> <span class="fl">0.05</span>               <span class="co"># Шаг времени для сохранения результатов</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Создание проблемы ОДУ для решения</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>prob3 <span class="op">=</span> <span class="fu">ODEProblem</span>(harmonic_oscillator_3, u0, tspan)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Решение проблемы ОДУ</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>sol3 <span class="op">=</span> <span class="fu">solve</span>(prob3, saveat<span class="op">=</span>dt)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Построение фазового портрета</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sol3, idxs<span class="op">=</span>(<span class="fl">1</span>,<span class="fl">2</span>), xlabel<span class="op">=</span><span class="st">&quot;Положение (x)&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Скорость (v)&quot;</span>, title<span class="op">=</span><span class="st">&quot;Фазовый портрет гармонического осциллятора 3&quot;</span>)</span></code></pre></div>
+<p>И мы получим результат:</p>
+<figure id="fig:003">
+<img
+src="https://drive.google.com/uc?id=10stq3JbSP7A2kqbFBgMtphwLVYBeGtjW"
+style="width:70.0%"
+alt="Фазовый портрет гармонического осциллятора 3" />
+<figcaption aria-hidden="true">Фазовый портрет гармонического
+осциллятора 3</figcaption>
+</figure>
+<h1 id="iv.-вывод">IV. Вывод</h1>
+<p>В ходе выполнения лабораторной работы я научился строить фазовый
+портрет гармонического осциллятора и решать уравнения гармонического
+осциллятора.</p>
+<h1 id="v.-ответы-на-вопросы">V. Ответы на вопросы :</h1>
+<p>1.Простейшим видом колебательного процесса являются простые
+гармонические колебания, описывающиеся уравнением: <span
+class="math display"><em>x</em> = <em>x</em><sub><em>m</em></sub><em>c</em><em>o</em><em>s</em>(<em>ω</em><em>t</em> + <em>φ</em><sub>0</sub>)</span>
+где x — смещение тела от положения равновесия, x_m — амплитуда
+колебаний, ω — циклическая или круговая частота, t — время.</p>
+<p>2.Осциллятор — система, совершающая колебания, то есть показатели
+которой периодически повторяются во времени.</p>
+<p>Модель математического маятника <span class="math display">$$
+\frac{d^2\alpha}{d t^2}+\frac{g}{L}\alpha=0 или
+\frac{d^2\alpha}{dt^2}+\omega^2\alpha=0 $$</span> 4.Дифференциальное
+уравнение второго порядка: <span class="math display">$$
+\ddot{x}+w_0^2x=f(t) $$</span> Замена: <span
+class="math display"><em>y</em> = <em>ẋ</em></span> Полученная система
+уравнений: <span
+class="math display"><em>y</em> = <em>ẋ</em>; <em>ẏ</em> = −<em>w</em><sub>0</sub><sup>2</sup><em>x</em></span></p>
+<p>5.Фазовый портрет — это полная совокупность различных фазовых
+траекторий.</p>
+<p>Фазовая траектория — кривая в фазовом пространстве, составленная из
+точек, представляющих состояние динамической системы в последовательные
+моменты времени в течение всего времени эволюции.</p>
